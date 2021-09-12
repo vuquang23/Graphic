@@ -248,7 +248,7 @@ Bạn có thể kiểm tra sự khác biệt một cách chặt chẽ
 bằng cách sử dụng trình kiểm tra pixel 
 (xem các điều khiển được liệt kê ở trên).
 Cũng lưu ý rằng,
-có thể mất vài giây để chuyển sang tốc độ lấy mẫu cao hơn.
+có thể mất vài giây để chuyển sang sample rate cao hơn.
 
 Để thuận tiện, đây là danh sách các chức năng
 mà bạn có thể sẽ muốn sử dụng hoặc sửa đổi.
