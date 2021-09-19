@@ -74,8 +74,6 @@ namespace CGL {
 
     // TODO: Task 2: Update to implement super-sampled rasterization
 
-
-
   }
 
 

@@ -9,7 +9,7 @@ week 2:
 - Task 2: Khử răng cưa bằng Supersampling (20 điểm)
 
 Week 3:
-- Task 3: Biến đổi (10 điểm)
+- Task 3: Các phép biến đổi (10 điểm)
 - Task 4: Tọa độ trung tâm (10 điểm)
 
 Week 4:
@@ -33,7 +33,7 @@ các hàm và kiểu dữ liệu vector và ma trận trong thư viện CGL [t�
 
 danh sách đầy đủ các API của thư viện CGL Vectors [tại đây](https://cs184.eecs.berkeley.edu/sp21/docs/cgl-vector-docs).
 
-##Giao diện GUI
+## Giao diện GUI
 
 Bạn có thể chạy tệp thực thi bằng lệnh
 ```bash
@@ -78,7 +78,9 @@ Ngoài việc sửa đổi những hàm này, bạn sẽ cần phải hiểu cá
 ví dụ, code cho bài tập này và các bài tập trong tương lai sử dụng thư viện CGL.
 Đối với bài tập này, bạn có thể quen với các lớp được định nghĩa trong `vector2D.h`, `matrix3x3.h` và `color.h`.
 
-Sau là mô tả ngắn gọn về những gì sẽ xảy ra khi bạn chạy chương trình `draw`: `SVGParser` (trong `svgparser.h` / `cpp`) đọc (các) tệp svg đầu vào, khởi chạy OpenGL Viewer có chứa trình kết xuất `DrawRend` (trong `drawrend.h / cpp`), vào một vòng lặp vô hạn và chờ đầu vào từ chuột và bàn phím. Trong hàm `DrawRend::redraw()`, việc vẽ các hình được
+Sau đây là mô tả ngắn gọn về những gì sẽ xảy ra khi bạn chạy chương trình:
+- `draw`: `SVGParser` (trong `svgparser.h` / `cpp`) đọc (các) tệp svg đầu vào, khởi chạy OpenGL Viewer có chứa trình kết xuất `DrawRend` (trong `drawrend.h / cpp`), vào một vòng lặp vô hạn và chờ đầu vào từ chuột và bàn phím. 
+  Trong hàm `DrawRend::redraw()`, việc vẽ các hình được
 thực hiện bởi các lớp `SVGElement` khác nhau (trong `svg.h / cpp`), sau đó chuyển dữ liệu điểm, đường và tam giác đến các phương thức thích hợp của lớp `Rasterizer`.
 
 ## Một ví dụ đơn giản: Vẽ điểm
@@ -134,7 +136,7 @@ trong `rasterizer.cpp`. Solution của bạn nên:
 không phải điểm ở góc. Tọa độ kiểm tra của bạn phải bằng một số nguyên cộng với (.5, .5).
 
 - Trong Phần 2, bạn sẽ cài đặt super sampling bằng pixel phụ(sub-pixel), 
-  nhưng ở đây bạn chỉ nên lấy mẫu một lần cho mỗi pixel và gọi hàm `fill_pixel()`.
+  nhưng ở đây bạn chỉ nên lấy mẫu một lần cho mỗi sub pixel và gọi hàm `fill_pixel()`.
   Làm theo ví dụ trong hàm `rasterize_point`.
   
 - Để nhận full điểm, chú ý các rìa của tam giác phải được vẽ chính xác. Bạn được khuyến khích nhưng không bắt buộc 
@@ -181,7 +183,7 @@ nhưng để lấy mẫu Supersampling, trước tiên bạn nên vẽ vào `sam
 
 Pipeline tổng thể của rasterizer:
 
-1. SVGParser đọc tệp svg thành 1 instant của SVG.
+1. SVGParser đọc tệp svg thành 1 instance của SVG.
 2. Khi bắt đầu rasterize, trình kết xuất (`DrawRend::redraw`) gọi hàm `SVG::draw`.
 3. `SVG::draw` gọi các hàm rasterize đường / tam giác / điểm cụ thể để tạo hình ảnh.
 4. `DrawRend::redraw` gọi rasterize đường để vẽ ranh giới hình vuông.
@@ -258,3 +260,86 @@ mà bạn có thể sẽ muốn sử dụng hoặc sửa đổi.
 `RasterizerImp::clear_buffers()` trong `rasterizer.h/cpp`.
 - Để cài đặt supersampling tam giác: `RasterizerImp::rasterize_triangle()`, `RasterizerImp::fill_pixel()`, trong `rasterizer.cpp`.
 -  Để chuyển supersampling buffer sang bộ đệm khung: `RasterizerImp::resolve_to_framebuffer()`
+## Week 3
+### Task 3: Phép biến đổi
+[Bài giảng liên quan: 4](https://cs184.eecs.berkeley.edu/sp21/lecture/4/transforms)
+
+Thực hiện ba phép biến đổi trong file `transforms.cpp`. Các ma trận biến đổi có kích thước 3x3 ở hệ tọa độ đồng nhất 
+- bạn có thể xem chúng sẽ được sử dụng ở class `Vector2D` bằng các toán tử *.
+
+Khi bạn đã cài đặt được các phép biến đổi đổi này, `svg/transforms/robot.svg` sẽ hiển thị chính xác, như hình sau:
+
+![img.png](img/transform.png)
+
+Để thuận tiện, đây là danh sách các hàm trong `transforms.cpp` mà bạn sẽ cần sửa đổi:
+
+- `translate`
+- `scale`
+- `rotate`
+
+Bonus: Thêm một tính năng bổ sung vào giao diện GUI. Ví dụ, bạn có thể tạo hai phím chưa được sử dụng để xoay hình. 
+Lưu một hình ảnh ví dụ để chứng minh tính năng của bạn và viết về cách bạn đã sửa đổi.
+
+### Task 4: Hệ tọa độ trung tâm (barycentric coordinate)
+[Bài giảng liên quan: 5](https://cs184.eecs.berkeley.edu/sp21/lecture/5/texture-mapping)
+
+Cài đặt hàm `RasterizerImp::rasterize_interpolated_color_triangle(...)` để vẽ 
+hình tam giác với các màu của đỉnh cho trước và được nội suy trên bề mặt tam giác bằng phép nội suy trung tâm.
+
+Sau khi task 4 hoàn thành, bạn sẽ có thể nhìn thấy bánh xe màu trong `svg/basic/test7.svg` (bên dưới, bên phải).
+
+Để thuận tiện, đây là danh sách các chức năng bạn sẽ cần sửa đổi:
+
+`RasterizerImp::rasterize_interpolated_color_triangle(...)`
+![img.png](img/bary.png)
+
+## Week 4
+### Task 5: "Lấy mẫu pixel" để map texture
+[Bài giảng liên quan: 5](https://cs184.eecs.berkeley.edu/sp21/lecture/5/texture-mapping)
+
+cài đặt hàm `RasterizerImp::rasterize_textured_triangle(...)` để vẽ một hình tam giác với
+các màu được xác định bằng map texture với tọa độ 2D đã cho tại mỗi đỉnh và `Texure` đã cho.
+Trong task 5, bạn sẽ thực hiện lấy mẫu texture trên 
+toàn bộ hình ảnh bằng cách sử dụng nội suy lân cận(nearest interpolation) và song tuyến (bilinear interpolation)
+,như được mô tả trong bài giảng.
+
+bật / tắt `PixelSampleMethod` của class `RasterizerImp` bằng phím `P`. Khi psm == P_NEAREST, bạn phải sử dụng 
+lấy mẫu pixel gần nhất và khi psm == P_LINEAR, 
+bạn nên sử dụng lấy mẫu song tuyến. 
+Để làm được như vậy, hãy cài đặt các hàm `Texture::sample_nepose` và `Texture::sample_bilinear` và
+gọi chúng từ `RasterizerImp::rasterize_textured_triangle(...)`.
+
+Khi Phần 5 hoàn thành, bạn sẽ có thể vẽ các tệp svg trong `svg/texmap/`, dựa trên ảnh texture.
+
+Ghi chú:
+
+- `Texture` struct trong `texture.h` lưu trữ một mipmap, như được mô tả trong bài giảng, của các hình ảnh `texture`
+  ở độ phân giải giảm dần, trong biến `mipmap`.
+  Mỗi hình ảnh kết cấu được lưu trữ dưới dạng một đối tượng kiểu `MipLevel`.
+  
+- `MipLevel::texels` lưu trữ các pixel hình ảnh texture ở định dạng RGB 
+  giống các pixel ở bộ điệm khung. 
+  
+- `MipLevel::get_texel (...)` có thể sẽ hữu ích cho bạn.
+
+- Tại phần này của bài tập, bạn vẫn chưa cài đặt lấy mẫu theo mức (mip-mapping),
+  vì vậy chương trình sẽ mặc định ở mức 0 (độ phân giải đầy đủ). 
+  
+Để thuận tiện, đây là danh sách các chức năng bạn sẽ cần sửa đổi:
+
+- `RasterizerImp::rasterize_textured_triangle`
+- `Texture::sample_nepose`
+- `Texture::sample_bilinear`
+
+### Task 6: "Lấy mẫu nhiều mức độ" với mipmap để lập bản đồ Texture
+[Bài giảng liên quan: 5](https://cs184.eecs.berkeley.edu/sp21/lecture/5/texture-mapping)
+
+Ở bài này, hãy cài đặt `RasterizerImp::rasterize_textured_triangle (...)` để lấy mẫu nhiều cấp độ mipmap
+khác nhau (MipLevels). Chuyển qua lại các `LevelSampleMethod` của `RasterizerImp` bằng phím `L`.
+Vui lòng cài đặt các phương pháp lấy mẫu mức sau trong hàm `Texture::sample`.
+
+- Khi `lsm == L_ZERO`, bạn nên lấy mẫu từ MipLevel thứ 0, như trong task 5.
+- Khi `lsm == L_NEAREST`, bạn nên tính cấp mipmap thích hợp gần nhất và lấy cấp đó làm tham số cho hàm mẫu gần nhất hoặc song tuyến.
+- Khi `lsm == L_LINEAR`, bạn nên tính mức mipmap dưới dạng một số liên tục. 
+  
+Sau đó, tính tổng có trọng số mỗi mẫu từ mỗi cấp độ mipmap liền kề như được mô tả trong bài giảng.
