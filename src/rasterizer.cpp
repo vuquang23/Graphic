@@ -65,12 +65,41 @@ namespace CGL {
     }
   }
 
+  int CCW(float &sx, float &sy, float &x0, float &y0, float &x1, float &y1) {
+      pair <double, double> A, B;
+      A = make_pair(x1 - x0, y1 - y0);
+      B = make_pair(sx - x1, sy - y1);
+      double ans = A.first * B.second - A.second * B.first;
+      return (ans != 0 ? (ans > 0 ? 1 : -1) : 0);
+  }
+
+  bool in_triangle(float &sx, float &sy, float &x0, float &y0, float &x1, float &y1, float &x2, float &y2) {
+    double ccw1 = CCW(sx, sy, x0, y0, x1, y1);
+    double ccw2 = CCW(sx, sy, x1, y1, x2, y2);
+    double ccw3 = CCW(sx, sy, x2, y2, x0, y0);
+    return (ccw1 * ccw2 >= 0 && ccw2 * ccw3 >= 0 && ccw3 * ccw1 >= 0);
+  }
+
   // Rasterize a triangle.
   void RasterizerImp::rasterize_triangle(float x0, float y0,
     float x1, float y1,
     float x2, float y2,
     Color color) {
     // TODO: Task 1: Implement basic triangle rasterization here, no supersampling
+    int min_x = floor(min({x0, x1, x2}));
+    int max_x = ceil(max({x0, x1, x2}));
+    int min_y = floor(min({y0, y1, y2}));
+    int max_y = ceil(max({y0, y1, y2}));
+
+    for (int i = min_x; i <= max_x; ++i) {
+        float sx = i*1. + 0.5;
+        for (int j = min_y; j <= max_y; ++j) {
+            float sy = j*1. + 0.5;
+            if (in_triangle(sx, sy, x0, y0, x1, y1, x2, y2)) {
+                fill_pixel(i, j, color);
+            }
+        }
+    }
 
     // TODO: Task 2: Update to implement super-sampled rasterization
 
