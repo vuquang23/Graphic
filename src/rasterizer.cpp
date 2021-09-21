@@ -90,19 +90,44 @@ namespace CGL {
     int max_x = ceil(max({x0, x1, x2}));
     int min_y = floor(min({y0, y1, y2}));
     int max_y = ceil(max({y0, y1, y2}));
-
-    for (int i = min_x; i <= max_x; ++i) {
-        float sx = i*1. + 0.5;
-        for (int j = min_y; j <= max_y; ++j) {
-            float sy = j*1. + 0.5;
-            if (in_triangle(sx, sy, x0, y0, x1, y1, x2, y2)) {
-                fill_pixel(i, j, color);
-            }
-        }
-    }
+//    for (int i = min_x; i <= max_x; ++i) {
+//        float sx = i*1. + 0.5;
+//        for (int j = min_y; j <= max_y; ++j) {
+//            float sy = j*1. + 0.5;
+//            if (in_triangle(sx, sy, x0, y0, x1, y1, x2, y2)) {
+//                fill_pixel(i, j, color);
+//            }
+//        }
+//    }
 
     // TODO: Task 2: Update to implement super-sampled rasterization
+    int sq_rate = sqrt(this->get_sample_rate());
 
+    for (int i = min_x; i <= max_x; ++i) {
+        for (int j = min_y; j <= max_y; ++j) {
+            int cnt_in = 0;
+            for (int step_x = 1; step_x <= sq_rate * 2 - 1; step_x += 2) {
+                for (int step_y = 1; step_y <= sq_rate * 2 - 1; step_y += 2) {
+                    float cur_x = (1. / (sq_rate * 2.)) * step_x + i;
+                    float cur_y = (1. / (sq_rate * 2.)) * step_y + j;
+                    if (in_triangle(cur_x, cur_y, x0, y0, x1, y1, x2, y2)) {
+                        ++cnt_in;
+                    }
+                }
+            }
+
+            if (cnt_in == 0) {
+                continue;
+            }
+
+            Color new_color;
+            new_color.r = color.r * float(cnt_in) / float(this->get_sample_rate());
+            new_color.g = color.g * float(cnt_in) / float(this->get_sample_rate());
+            new_color.b = color.b * float(cnt_in) / float(this->get_sample_rate());
+
+            rasterize_point(i, j, color);
+        }
+    }
   }
 
 
@@ -187,3 +212,6 @@ namespace CGL {
 
 
 }// CGL
+
+
+// TODO: Task 2: dont scale sample_buffer size
