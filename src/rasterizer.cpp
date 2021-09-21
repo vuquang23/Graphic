@@ -22,8 +22,12 @@ namespace CGL {
     // NOTE: You are not required to implement proper supersampling for points and lines
     // It is sufficient to use the same color for all supersamples of a pixel for points and lines (not triangles)
 
-
-    sample_buffer[y * width + x] = c;
+    int sq_rate = sqrt(sample_rate);
+    for (int step_x = 0; step_x < sq_rate; ++step_x) {
+        for (int step_y = 0; step_y < sq_rate; ++step_y) {
+            this->sample_buffer[(y * sq_rate + step_y) * width * sq_rate + x * sq_rate + step_x] = c;
+        }
+    }
   }
 
   // Rasterize a point: simple example to help you start familiarizing
@@ -107,8 +111,8 @@ namespace CGL {
         for (int j = min_y; j <= max_y; ++j) {
             for (int step_x = 0; step_x < sq_rate; ++step_x) {
                 for (int step_y = 0; step_y < sq_rate; ++step_y) {
-                    float cur_x = i + step_x + 0.5;
-                    float cur_y = j + step_y + 0.5;
+                    float cur_x = i + (step_x + 0.5) / sq_rate;
+                    float cur_y = j + (step_y + 0.5) / sq_rate;
                     if (in_triangle(cur_x, cur_y, x0, y0, x1, y1, x2, y2)) {
                         this->sample_buffer[(j * sq_rate + step_y) * width * sq_rate + i * sq_rate + step_x] = color;
                     }
