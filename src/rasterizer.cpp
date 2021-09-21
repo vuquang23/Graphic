@@ -120,12 +120,11 @@ namespace CGL {
                 continue;
             }
 
-            Color new_color;
-            new_color.r = color.r * float(cnt_in) / float(this->get_sample_rate());
-            new_color.g = color.g * float(cnt_in) / float(this->get_sample_rate());
-            new_color.b = color.b * float(cnt_in) / float(this->get_sample_rate());
+            Color new_color = color;
+            new_color *= float (cnt_in);
+            new_color *= float (1. / this->get_sample_rate());
 
-            rasterize_point(i, j, color);
+            rasterize_point(i, j, new_color);
         }
     }
   }
