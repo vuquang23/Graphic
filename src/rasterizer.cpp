@@ -161,6 +161,13 @@ namespace CGL {
 
     }
 
+    Vector3D interpolation_calc(double cur_x, double cur_y, double x0, double y0, double x1, double y1, double x2, double y2) {
+        double alpha = (-(cur_x - x1)*(y2 - y1) + (cur_y - y1)*(x2 - x1)) / (-(x0 - x1)*(y2 - y1) + (y0 - y1)*(x2 - x1));
+        double beta = (-(cur_x - x2)*(y0 - y2) + (cur_y - y2)*(x0 - x2)) / (-(x1 - x2)*(y0 - y2) + (y1 - y2)*(x0 - x2));
+        double theta = 1 - alpha - beta;
+        return Vector3D(alpha, beta, theta);
+    }
+
 
     void RasterizerImp::rasterize_textured_triangle(float x0, float y0, float u0, float v0,
                                                     float x1, float y1, float u1, float v1,
@@ -170,9 +177,46 @@ namespace CGL {
         // TODO: Task 6: Set the correct barycentric differentials in the SampleParams struct.
         // Hint: You can reuse code from rasterize_triangle/rasterize_interpolated_color_triangle
 
+        int min_x = floor(min({x0, x1, x2}));
+        int max_x = ceil(max({x0, x1, x2}));
+        int min_y = floor(min({y0, y1, y2}));
+        int max_y = ceil(max({y0, y1, y2}));
+        int sq_rate = sqrt(this->get_sample_rate());
 
+        SampleParams sp = SampleParams {
+                Vector2D(),
+                Vector2D(),
+                Vector2D(),
+                psm,
+                lsm
+        };
 
+        for (int i = min_x; i <= max_x; ++i) {
+            for (int j = min_y; j <= max_y; ++j) {
+                for (int step_x = 0; step_x < sq_rate; ++step_x) {
+                    for (int step_y = 0; step_y < sq_rate; ++step_y) {
+                        float cur_x = i + (step_x + 0.5) / sq_rate;
+                        float cur_y = j + (step_y + 0.5) / sq_rate;
 
+                        bool ok = in_triangle(cur_x, cur_y, x0, y0, x1, y1, x2, y2);
+                        if (ok) {
+                            Vector3D v3d = interpolation_calc(cur_x, cur_y, x0, y0, x1, y1, x2, y2);
+                            sp.p_uv = Vector2D(u0*v3d[0] + u1*v3d[1] + u2*v3d[2], v0*v3d[0] + v1*v3d[1] + v2*v3d[2]);
+
+                            v3d = interpolation_calc(cur_x + 1, cur_y, x0, y0, x1, y1, x2, y2);
+                            sp.p_dx_uv = Vector2D(u0*v3d[0] + u1*v3d[1] + u2*v3d[2], v0*v3d[0] + v1*v3d[1] + v2*v3d[2]);
+
+                            v3d = interpolation_calc(cur_x, cur_y + 1, x0, y0, x1, y1, x2, y2);
+                            sp.p_dy_uv = Vector2D(u0*v3d[0] + u1*v3d[1] + u2*v3d[2], v0*v3d[0] + v1*v3d[1] + v2*v3d[2]);
+
+                            Color new_color = tex.sample(sp);
+
+                            this->sample_buffer[(j * sq_rate + step_y) * width * sq_rate + i * sq_rate + step_x] = new_color;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void RasterizerImp::set_sample_rate(unsigned int rate) {
@@ -192,8 +236,6 @@ namespace CGL {
         this->width = width;
         this->height = height;
         this->rgb_framebuffer_target = rgb_framebuffer;
-
-
         this->sample_buffer.resize(width * height * sample_rate, Color::White);
     }
 

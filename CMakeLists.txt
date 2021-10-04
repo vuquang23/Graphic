@@ -47,7 +47,8 @@ add_executable(draw ${APPLICATION_SOURCE})
 target_include_directories(draw PUBLIC src)
 
 set(CGL_INCLUDE_DIRS CGL/include CGL/deps/glew/include CGL/deps/glfw/include)
-
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
 #-------------------------------------------------------------------------------
 # Find dependencies
 #-------------------------------------------------------------------------------
